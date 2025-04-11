@@ -165,6 +165,13 @@ mod wav_output;
 
 pub mod buffer;
 pub mod conversions;
+#[cfg(any(
+    feature = "flac",
+    feature = "mp3",
+    feature = "symphonia",
+    feature = "vorbis",
+    feature = "wav",
+))]
 pub mod decoder;
 pub mod mixer;
 pub mod queue;
@@ -172,6 +179,13 @@ pub mod source;
 pub mod static_buffer;
 
 pub use crate::common::{ChannelCount, Sample, SampleRate};
+#[cfg(any(
+    feature = "flac",
+    feature = "mp3",
+    feature = "symphonia",
+    feature = "vorbis",
+    feature = "wav",
+))]
 pub use crate::decoder::Decoder;
 pub use crate::sink::Sink;
 pub use crate::source::Source;
