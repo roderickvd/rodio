@@ -1,12 +1,20 @@
-use crate::common::{ChannelCount, SampleRate};
-use crate::decoder;
-use crate::mixer::{mixer, Mixer, MixerSource};
-use crate::sink::Sink;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, Sample, SampleFormat, StreamConfig};
-use std::io::{Read, Seek};
-use std::marker::Sync;
+use crate::{
+    common::{ChannelCount, SampleRate},
+    mixer::{mixer, Mixer, MixerSource},
+};
+use cpal::{
+    traits::{DeviceTrait, HostTrait, StreamTrait},
+    BufferSize, Sample, SampleFormat, StreamConfig,
+};
 use std::{error, fmt};
+
+#[cfg(feature = "__decoder")]
+use crate::{decoder, sink::Sink};
+#[cfg(feature = "__decoder")]
+use std::{
+    io::{Read, Seek},
+    marker::Sync,
+};
 
 const HZ_44100: SampleRate = 44_100;
 
@@ -283,6 +291,7 @@ where
     }
 }
 
+#[cfg(feature = "__decoder")]
 /// A convenience function. Plays a sound once.
 /// Returns a `Sink` that can be used to control the sound.
 pub fn play<R>(mixer: &Mixer, input: R) -> Result<Sink, PlayError>
@@ -308,12 +317,14 @@ impl From<&OutputStreamConfig> for StreamConfig {
 /// An error occurred while attempting to play a sound.
 #[derive(Debug)]
 pub enum PlayError {
+    #[cfg(feature = "__decoder")]
     /// Attempting to decode the audio failed.
     DecoderError(decoder::DecoderError),
     /// The output device was lost.
     NoDevice,
 }
 
+#[cfg(feature = "__decoder")]
 impl From<decoder::DecoderError> for PlayError {
     fn from(err: decoder::DecoderError) -> Self {
         Self::DecoderError(err)
@@ -323,6 +334,7 @@ impl From<decoder::DecoderError> for PlayError {
 impl fmt::Display for PlayError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            #[cfg(feature = "__decoder")]
             Self::DecoderError(e) => e.fmt(f),
             Self::NoDevice => write!(f, "NoDevice"),
         }
@@ -332,6 +344,7 @@ impl fmt::Display for PlayError {
 impl error::Error for PlayError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
+            #[cfg(feature = "__decoder")]
             Self::DecoderError(e) => Some(e),
             Self::NoDevice => None,
         }

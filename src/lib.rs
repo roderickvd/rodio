@@ -165,13 +165,7 @@ mod wav_output;
 
 pub mod buffer;
 pub mod conversions;
-#[cfg(any(
-    feature = "flac",
-    feature = "mp3",
-    feature = "symphonia",
-    feature = "vorbis",
-    feature = "wav",
-))]
+#[cfg(feature = "__decoder")]
 pub mod decoder;
 pub mod mixer;
 pub mod queue;
@@ -179,18 +173,14 @@ pub mod source;
 pub mod static_buffer;
 
 pub use crate::common::{ChannelCount, Sample, SampleRate};
-#[cfg(any(
-    feature = "flac",
-    feature = "mp3",
-    feature = "symphonia",
-    feature = "vorbis",
-    feature = "wav",
-))]
+#[cfg(feature = "__decoder")]
 pub use crate::decoder::Decoder;
 pub use crate::sink::Sink;
 pub use crate::source::Source;
 pub use crate::spatial_sink::SpatialSink;
+#[cfg(all(feature = "playback", feature = "__decoder"))]
+pub use crate::stream::play;
 #[cfg(feature = "playback")]
-pub use crate::stream::{play, OutputStream, OutputStreamBuilder, PlayError, StreamError};
+pub use crate::stream::{OutputStream, OutputStreamBuilder, PlayError, StreamError};
 #[cfg(feature = "wav")]
 pub use crate::wav_output::output_to_wav;
